@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Certificate Transparency verifier</title>
+  <script type="text/javascript" src="popup.js"></script>
+</head>
+<body>
+  <button id="downloadbutton">Download collected certificates (old storage)</button><br>
+  <div id="statustext">(status: ???)</div>
+  OLD STORAGE WILL BE DROPPED SOON, DOWNLOAD IT NOW IF YOU WANT TO KEEP IT!
+  <hr>
+  This extension collects all certificates seen and (if a log list has been downloaded) checks that any leaf certificate has at least 2 SCTs from logs in the log list.<br>
+  It currently completely ignores log status (i.e. compromised logs will be trusted!).<br>
+  <strong>This extension is under development and highly experimental.</strong> DO NOT USE IT unless you understand Certificate Transparency. Check the console for errors.
+  SCTs provided via OCSP or TLS extensions are not supported and will be ignored. Thus, this extension may fail to verify certificates that are trusted by Chrome.
+  <br>
+  <button id="logupdatebutton">Update log list from Google</button> (you need to do this at least once to start validating SCTs)<br>
+  <button id="download2button">Download data (new storage)</button><br>
+  <div id="statustext2">(status: ???)</div>
+  <button id="resetbutton">reset unvalidated certificate counter</button><br>
+</body>
+</html>

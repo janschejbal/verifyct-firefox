@@ -1,0 +1,24 @@
+{
+  "description": "Certificate Transparency Verifier",
+  "manifest_version": 2,
+  "name": "verifyct",
+  "version": "1.1.0",
+  "permissions": ["storage", "unlimitedStorage", "webRequest", "webRequestBlocking", "<all_urls>"],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "icons": {
+    "48": "icon.svg",
+    "96": "icon.svg"
+  },
+  "browser_action": {
+    "default_popup": "popup.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "verifyct@janschejbal.github.com",
+      "strict_min_version": "122.0"
+    }
+  },
+  "content_security_policy": "default-src 'self'; connect-src 'self' https://www.gstatic.com/ct/log_list/v3/log_list.json https://www.gstatic.com/ct/log_list/v3/log_list.sig"
+}
