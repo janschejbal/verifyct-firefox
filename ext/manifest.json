@@ -2,7 +2,7 @@
   "description": "Certificate Transparency Verifier",
   "manifest_version": 2,
   "name": "verifyct",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "permissions": ["storage", "unlimitedStorage", "webRequest", "webRequestBlocking", "<all_urls>"],
   "background": {
     "scripts": ["background.js"]

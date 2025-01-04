@@ -1,50 +1,32 @@
-function downloadOld() {
-  const page = browser.extension.getBackgroundPage();
-  const transaction = page.db.transaction(["certstore"], "readonly");
-  const certstore = transaction.objectStore("certstore");
-  const req = certstore.getAll();
-  req.onsuccess = (event) => {
-    const out = [];
-    req.result.forEach((certData) => {
-      out.push(btoa(String.fromCharCode(...certData.der)));
-      out.push("\n");
-    });
-    const url = URL.createObjectURL(new Blob(out));
-    var a = document.createElement("a");
-    document.body.appendChild(a);
-    a.style.display = "none";
-    a.href = url;
-    a.download = "VerifyCT_dump.txt";
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
+
+// Helper function: Read all entries from the given store using the given tx.
+// This is a workaround for getAll failing with "The operation failed for reasons unrelated to the database itself and not covered by any other error code." as of Firefox 133 if the DB is too big.
+// The returned array will be populated *after* this function has returned! Wait for tx.oncomplete before reading it.
+function readStoreAsync(tx, storename) {
+  const curReq = tx.objectStore(storename).openCursor();
+  const result = []
+  curReq.onsuccess = (e) => {
+    const cur = curReq.result;
+    if (cur) {
+      result.push(cur.value);
+      cur.continue();
+    }
+  }
+  return result;
 }
 
-function getCountOld() {
-  return new Promise((resolve) => {
-    const page = browser.extension.getBackgroundPage();
-    const transaction = page.db.transaction(["certstore"], "readonly");
-    const certstore = transaction.objectStore("certstore");
-    const req = certstore.count();
-    req.onsuccess = () => {
-      resolve(req.result);
-    };
-  });
-}
-
-function downloadNew() {
+function download() {
   const page = browser.extension.getBackgroundPage();
   const tx = page.db.transaction(["certstore2", "chainstore"], "readonly");
-  const req_certs = tx.objectStore("certstore2").getAll();
-  const req_chains = tx.objectStore("chainstore").getAll();
+  const certs = readStoreAsync(tx, "certstore2");
+  const chains = readStoreAsync(tx, "chainstore");
   tx.oncomplete = (event) => {
-    certs = req_certs.result;
     certs.forEach((c) => {
       c.der = btoa(String.fromCharCode(...c.der));
     })
     out = JSON.stringify({
-      certs: req_certs.result,
-      chains: req_chains.result
+      certs: certs,
+      chains: chains
     });
     const url = URL.createObjectURL(new Blob([out]));
     var a = document.createElement("a");
@@ -57,7 +39,7 @@ function downloadNew() {
   };
 }
 
-function getCountNew() {
+function getCount() {
   return new Promise((resolve) => {
     const page = browser.extension.getBackgroundPage();
     const tx = page.db.transaction(["certstore2", "chainstore"], "readonly");
@@ -109,15 +91,10 @@ function resetCount() {
 }
 
 window.onload = () => {
-  document.getElementById("downloadbutton").addEventListener("click", downloadOld);
-  getCountOld().then((n) => {
-    document.getElementById("statustext").innerText = "" + n + " certificates seen (old storage)";
-  });
-
   document.getElementById("logupdatebutton").addEventListener("click", updateLogList);
-  document.getElementById("download2button").addEventListener("click", downloadNew);
-  getCountNew().then((n) => {
-    document.getElementById("statustext2").innerText = `${n[0]} certs, ${n[1]} chains seen (new storage)`;
+  document.getElementById("downloadbutton").addEventListener("click", download);
+  getCount().then((n) => {
+    document.getElementById("statustext").innerText = `${n[0]} certs, ${n[1]} chains seen (new storage)`;
   });
   document.getElementById("resetbutton").addEventListener("click", resetCount);
 }
