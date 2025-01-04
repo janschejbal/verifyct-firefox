@@ -4,6 +4,7 @@ This is an **experimental, work in progress** extension trying to bring [Certifi
 
 At the current stage, you should **not** use this extension unless you are familiar with Certificate Transparency (i.e. you know what an SCT is), and willing to deal with issues and look at the console for output.
 
+The extension is available at https://addons.mozilla.org/en-US/firefox/addon/verifyct/
 
 ## Permissions
 The extension needs to use [getSecurityInfo](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/webRequest/getSecurityInfo) to get access to the certificates. As the documentation explains, this unfortunately requires `webRequest`, `webRequestBlocking` and host permissions for all hosts where we want to monitor certificates (i.e. `<all_urls>`).
